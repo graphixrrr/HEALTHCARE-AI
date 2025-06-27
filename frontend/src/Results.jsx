@@ -13,7 +13,6 @@ ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 export default function Results() {
   const [diagnosis, setDiagnosis] = useState(null);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const chartRef = useRef(null);
 
@@ -26,8 +25,8 @@ export default function Results() {
           symptoms: selected,
         });
         setDiagnosis(res.data);
-      } catch (err) {
-        setError("Failed to fetch diagnosis.");
+      } catch {
+        setDiagnosis("Failed to fetch diagnosis.");
       } finally {
         setLoading(false);
       }
@@ -36,7 +35,7 @@ export default function Results() {
   }, []);
 
   useEffect(() => {
-    if (!diagnosis) return;
+    if (!diagnosis || typeof diagnosis === "string") return;
     if (window.myChart) window.myChart.destroy();
 
     window.myChart = new ChartJS(chartRef.current, {
@@ -47,7 +46,7 @@ export default function Results() {
           {
             label: "Accuracy (%)",
             data: diagnosis.map((d) => d.Issue.Accuracy.toFixed(2)),
-            backgroundColor: "rgba(59, 130, 246, 0.7)",
+            backgroundColor: "rgba(99, 102, 241, 0.7)", // indigo-500
             borderRadius: 6,
           },
         ],
@@ -60,23 +59,24 @@ export default function Results() {
     });
   }, [diagnosis]);
 
-  if (loading) return <p>Loading diagnosis...</p>;
-  if (error) return <p className="text-red-600">{error}</p>;
+  if (loading) return <p className="text-neutral-300">Loading diagnosis...</p>;
+  if (typeof diagnosis === "string") return <p className="font-semibold text-red-500">{diagnosis}</p>;
 
   return (
-    <div className="bg-white rounded-lg shadow p-8">
-      <h2 className="text-2xl font-semibold mb-6">Diagnosis Results</h2>
-      <ul className="mb-8">
+    <div className="w-full max-w-xl p-8 mt-8 rounded-lg shadow-lg bg-neutral-800">
+      <h2 className="mb-6 text-3xl font-bold leading-tight text-white">Diagnosis Results</h2>
+      <ul className="mb-8 divide-y divide-neutral-700">
         {diagnosis.map(({ Issue }) => (
-          <li key={Issue.ID} className="mb-3 border-b pb-2">
-            <strong>{Issue.Name}</strong> (Accuracy:{" "}
-            {Issue.Accuracy.toFixed(2)}%)<br />
-            <em>{Issue.IcdName}</em>
+          <li key={Issue.ID} className="py-3 text-neutral-200">
+            <strong className="text-lg">{Issue.Name}</strong> (Accuracy: {Issue.Accuracy.toFixed(2)}%)<br />
+            <em className="text-neutral-400">{Issue.IcdName}</em>
           </li>
         ))}
       </ul>
-      <h3 className="text-xl font-semibold mb-4">Accuracy Chart</h3>
-      <canvas ref={chartRef} height={150} />
+      <h3 className="mb-4 text-xl font-semibold text-white">Accuracy Chart</h3>
+      <div className="p-4 rounded bg-neutral-900">
+        <canvas ref={chartRef} height={150} />
+      </div>
     </div>
   );
 }

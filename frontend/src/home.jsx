@@ -40,18 +40,18 @@ export default function Home() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow p-8">
-      <h2 className="text-2xl font-semibold mb-4">Select your symptoms</h2>
+    <div className="w-full max-w-xl p-8 mt-8 rounded-lg shadow-lg bg-neutral-800">
+      <h2 className="mb-4 text-3xl font-bold leading-tight text-white">Select your symptoms</h2>
       {loading ? (
-        <p>Loading symptoms...</p>
+        <p className="text-neutral-300">Loading symptoms...</p>
       ) : (
         <form onSubmit={handleSubmit}>
-          <div className="max-h-72 overflow-y-auto border rounded p-3 mb-4">
+          <div className="p-3 mb-4 overflow-y-auto border rounded border-neutral-700 max-h-72 bg-neutral-900">
             {allSymptoms.map(({ ID, Name }) => (
-              <label key={ID} className="block mb-1 cursor-pointer">
+              <label key={ID} className="block mb-1 cursor-pointer text-neutral-200">
                 <input
                   type="checkbox"
-                  className="mr-2"
+                  className="mr-2 accent-indigo-500"
                   checked={selectedSymptoms.includes(ID)}
                   onChange={() => toggleSymptom(ID)}
                 />
@@ -61,12 +61,12 @@ export default function Home() {
           </div>
           <button
             type="submit"
-            className="bg-blue-700 hover:bg-blue-800 text-white px-6 py-3 rounded font-semibold transition"
+            className="px-6 py-2 text-base font-medium text-white transition-colors duration-200 bg-indigo-600 border border-transparent rounded-lg cursor-pointer hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
           >
             Get Diagnosis
           </button>
         </form>
       )}
     </div>
-);
+  );
 }
