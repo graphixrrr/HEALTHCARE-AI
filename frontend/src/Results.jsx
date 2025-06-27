@@ -63,8 +63,8 @@ export default function Results() {
   if (typeof diagnosis === "string") return <p className="font-semibold text-red-500">{diagnosis}</p>;
 
   return (
-    <div className="w-full max-w-xl p-8 mt-8 rounded-lg shadow-lg bg-neutral-800">
-      <h2 className="mb-6 text-3xl font-bold leading-tight text-white">Diagnosis Results</h2>
+    <div className="w-full max-w-xl p-8 mt-8 glass-card purple-glow fade-in">
+      <h2 className="mb-6 text-3xl font-bold leading-tight text-white drop-shadow-lg">Diagnosis Results</h2>
       <ul className="mb-8 divide-y divide-neutral-700">
         {diagnosis.map(({ Issue }) => (
           <li key={Issue.ID} className="py-3 text-neutral-200">
@@ -74,7 +74,7 @@ export default function Results() {
         ))}
       </ul>
       <h3 className="mb-4 text-xl font-semibold text-white">Accuracy Chart</h3>
-      <div className="p-4 rounded bg-neutral-900">
+      <div className="p-4 rounded bg-neutral-900 bg-opacity-80 purple-glow">
         <canvas ref={chartRef} height={150} />
       </div>
     </div>

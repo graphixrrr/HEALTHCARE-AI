@@ -6,6 +6,8 @@ export default function Home() {
   const [allSymptoms, setAllSymptoms] = useState([]);
   const [selectedSymptoms, setSelectedSymptoms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState("");
+  const [customSymptoms, setCustomSymptoms] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,29 +41,90 @@ export default function Home() {
     navigate("/results");
   }
 
+  const filteredSymptoms = allSymptoms.filter(({ Name }) =>
+    Name.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  function handleAddCustomSymptom(e) {
+    e.preventDefault();
+    const trimmed = filter.trim();
+    if (!trimmed) return;
+    // Prevent duplicates (case-insensitive)
+    const exists =
+      allSymptoms.some((s) => s.Name.toLowerCase() === trimmed.toLowerCase()) ||
+      customSymptoms.some((s) => s.toLowerCase() === trimmed.toLowerCase());
+    if (!exists) {
+      setCustomSymptoms((prev) => [...prev, trimmed]);
+      setSelectedSymptoms((prev) => [...prev, trimmed]);
+    }
+    setFilter("");
+  }
+
   return (
-    <div className="w-full max-w-xl p-8 mt-8 rounded-lg shadow-lg bg-neutral-800">
-      <h2 className="mb-4 text-3xl font-bold leading-tight text-white">Select your symptoms</h2>
+    <div className="w-full max-w-xl p-8 mt-8 glass-card accent-glow fade-in">
+      <h2 className="mb-4 text-3xl font-bold leading-tight tracking-tight text-cyan-100 drop-shadow-lg" style={{ fontFamily: 'Montserrat, Segoe UI, Arial, sans-serif' }}>Select your symptoms</h2>
       {loading ? (
-        <p className="text-neutral-300">Loading symptoms...</p>
+        <p className="text-cyan-200">Loading symptoms...</p>
       ) : (
         <form onSubmit={handleSubmit}>
-          <div className="p-3 mb-4 overflow-y-auto border rounded border-neutral-700 max-h-72 bg-neutral-900">
-            {allSymptoms.map(({ ID, Name }) => (
-              <label key={ID} className="block mb-1 cursor-pointer text-neutral-200">
+          <input
+            type="text"
+            className="w-full px-3 py-2 mb-2 rounded text-cyan-900 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+            placeholder="Type or search symptoms..."
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleAddCustomSymptom(e);
+              }
+            }}
+            style={{ fontFamily: 'Montserrat, Segoe UI, Arial, sans-serif' }}
+          />
+          {filter &&
+            !allSymptoms.some((s) => s.Name.toLowerCase() === filter.trim().toLowerCase()) &&
+            !customSymptoms.some((s) => s.toLowerCase() === filter.trim().toLowerCase()) && (
+              <button
+                className="px-3 py-1 mb-2 fancy-btn"
+                onClick={handleAddCustomSymptom}
+                type="button"
+              >
+                Add "{filter.trim()}" as custom symptom
+              </button>
+            )}
+          <div className="p-3 mb-4 overflow-y-auto border rounded border-cyan-900 max-h-72 bg-cyan-950 bg-opacity-70">
+            {filteredSymptoms.map(({ ID, Name }) => (
+              <label key={ID} className="block mb-1 transition-colors duration-150 cursor-pointer text-cyan-100 hover:text-orange-300" style={{ fontFamily: 'Montserrat, Segoe UI, Arial, sans-serif' }}>
                 <input
                   type="checkbox"
-                  className="mr-2 accent-indigo-500"
+                  className="mr-2 transition-transform duration-150 scale-110 accent-cyan-400 hover:scale-125"
                   checked={selectedSymptoms.includes(ID)}
                   onChange={() => toggleSymptom(ID)}
                 />
                 {Name}
               </label>
             ))}
+            {customSymptoms.map((symptom) => (
+              <label key={symptom} className="block mb-1 text-orange-200 transition-colors duration-150 cursor-pointer hover:text-cyan-200" style={{ fontFamily: 'Montserrat, Segoe UI, Arial, sans-serif' }}>
+                <input
+                  type="checkbox"
+                  className="mr-2 transition-transform duration-150 scale-110 accent-orange-400 hover:scale-125"
+                  checked={selectedSymptoms.includes(symptom)}
+                  onChange={() =>
+                    setSelectedSymptoms((prev) =>
+                      prev.includes(symptom)
+                        ? prev.filter((x) => x !== symptom)
+                        : [...prev, symptom]
+                    )
+                  }
+                />
+                {symptom} <span className="text-xs">(custom)</span>
+              </label>
+            ))}
           </div>
           <button
             type="submit"
-            className="px-6 py-2 text-base font-medium text-white transition-colors duration-200 bg-indigo-600 border border-transparent rounded-lg cursor-pointer hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            className="w-full mt-2 fancy-btn"
           >
             Get Diagnosis
           </button>
