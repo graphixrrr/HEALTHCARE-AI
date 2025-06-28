@@ -29,22 +29,37 @@ async function getToken() {
 }
 
 async function getSymptoms() {
-  const token = await getToken();
-  const res = await axios.get(
-    `${API_BASE_URL}/symptoms?token=${token}&language=en-gb`
-  );
-  return res.data;
+  try {
+    const token = await getToken();
+    console.log("[apiMedicClient] getSymptoms - Using token:", token ? token.substring(0, 8) + '...' : 'none');
+    const res = await axios.get(
+      `${API_BASE_URL}/symptoms?token=${token}&language=en-gb`
+    );
+    console.log("[apiMedicClient] getSymptoms - API call success, count:", Array.isArray(res.data) ? res.data.length : 'N/A');
+    return res.data;
+  } catch (err) {
+    console.error("[apiMedicClient] getSymptoms - API call error:", err);
+    throw err;
+  }
 }
 
 async function getDiagnosis(symptomsArray) {
-  const token = await getToken();
-  const res = await axios.get(
-    `${API_BASE_URL}/diagnosis?token=${token}` +
-      `&language=en-gb&symptoms=${encodeURIComponent(
-        JSON.stringify(symptomsArray)
-      )}&gender=male&year_of_birth=1990`
-  );
-  return res.data;
+  try {
+    const token = await getToken();
+    console.log("[apiMedicClient] getDiagnosis - Using token:", token ? token.substring(0, 8) + '...' : 'none');
+    console.log("[apiMedicClient] getDiagnosis - Symptoms array:", symptomsArray);
+    const res = await axios.get(
+      `${API_BASE_URL}/diagnosis?token=${token}` +
+        `&language=en-gb&symptoms=${encodeURIComponent(
+          JSON.stringify(symptomsArray)
+        )}&gender=male&year_of_birth=1990`
+    );
+    console.log("[apiMedicClient] getDiagnosis - API call success, count:", Array.isArray(res.data) ? res.data.length : 'N/A');
+    return res.data;
+  } catch (err) {
+    console.error("[apiMedicClient] getDiagnosis - API call error:", err);
+    throw err;
+  }
 }
 
 module.exports = { getSymptoms, getDiagnosis };
