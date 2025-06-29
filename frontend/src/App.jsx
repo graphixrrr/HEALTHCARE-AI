@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Home from "./home";
 import Results from "./Results";
+import AboutMe from "./AboutMe";
 
 // Main App component
 export default function App() {
@@ -28,13 +29,15 @@ export default function App() {
           <h1 className="text-4xl font-bold leading-tight tracking-tight text-white drop-shadow-lg">HealthSymptom Finder</h1>
           <div>
             <Link to="/" className="mr-4 font-semibold no-underline transition-colors duration-200 text-cyan-200 hover:text-orange-300">Home</Link>
-            <Link to="/results" className="font-semibold no-underline transition-colors duration-200 text-cyan-200 hover:text-orange-300">Results</Link>
+            <Link to="/results" className="mr-4 font-semibold no-underline transition-colors duration-200 text-cyan-200 hover:text-orange-300">Results</Link>
+            <Link to="/about" className="font-semibold no-underline transition-colors duration-200 text-cyan-200 hover:text-orange-300">About Me</Link>
           </div>
         </nav>
         <main className="flex flex-col items-center justify-center flex-1 w-full p-6 fade-in">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/results" element={<Results />} />
+            <Route path="/about" element={<AboutMe />} />
           </Routes>
         </main>
         <footer className="w-full max-w-5xl p-4 mx-auto mt-4 mb-2 text-sm text-center border-t glass-card accent-glow text-cyan-100 border-cyan-900">
