@@ -38,7 +38,14 @@ export default function Home() {
       return;
     }
     localStorage.setItem("selectedSymptoms", JSON.stringify(selectedSymptoms));
-    navigate("/results");
+    axios.post("http://localhost:5001/api/diagnose", { symptoms: selectedSymptoms })
+      .then(response => {
+        navigate("/results");
+      })
+      .catch(error => {
+        console.error("Error getting diagnosis:", error);
+        alert("An error occurred while getting the diagnosis. Please try again later.");
+      });
   }
 
   const filteredSymptoms = allSymptoms.filter(({ Name }) =>
