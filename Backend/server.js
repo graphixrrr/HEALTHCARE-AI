@@ -26,7 +26,7 @@ app.post("/api/ask-gemini", async (req, res) => {
   }
   try {
     const apiKey = process.env.GEMINI_API_KEY;
-    const geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + apiKey;
+    const geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=" + apiKey;
     console.log("Sending request to Gemini API...");
     const response = await axios.post(geminiUrl, {
       contents: [{ parts: [{ text: prompt }] }]
