@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const { getSymptoms, getDiagnosis } = require("./apiMedicClient");
+const { getSymptoms, getDiagnosis } = require("./geminiClient");
 
 const app = express();
 app.use(cors());
