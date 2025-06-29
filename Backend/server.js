@@ -1,48 +1,54 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const { getSymptoms, getDiagnosis } = require("./apiMedicClient");
+const axios = require("axios");
+const path = require('path');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
 app.get("/", (req, res) => {
-  res.send("HealthCare AI Backend Running");
+  res.send("HealthCare AI Backend Running (Gemini)");
 });
 
-// Fetch list of all symptoms
-app.get("/api/symptoms", async (req, res) => {
-  console.log("[GET] /api/symptoms - Incoming request");
+// Gemini endpoint: accepts { prompt: "..." }
+app.post("/api/ask-gemini", async (req, res) => {
+  const { prompt } = req.body;
+  console.log("Received prompt:", prompt);
+  if (!prompt || typeof prompt !== "string") {
+    return res.status(400).json({ error: "Prompt is required." });
+  }
   try {
-    const symptoms = await getSymptoms();
-    console.log("[GET] /api/symptoms - Success, symptoms count:", Array.isArray(symptoms) ? symptoms.length : 'N/A');
-    res.json(symptoms);
+    const apiKey = process.env.GEMINI_API_KEY;
+    const geminiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + apiKey;
+    console.log("Sending request to Gemini API...");
+    const response = await axios.post(geminiUrl, {
+      contents: [{ parts: [{ text: prompt }] }]
+    });
+    console.log("Gemini API response:", JSON.stringify(response.data, null, 2));
+    const geminiText = response.data.candidates?.[0]?.content?.parts?.[0]?.text || "No response from Gemini.";
+    res.json({ response: geminiText });
   } catch (err) {
-    console.error("[GET] /api/symptoms - Error:", err);
-    res.status(500).json({ error: err.message });
+    console.error("Gemini API error:", err?.response?.data || err.message || err);
+    const geminiError = err?.response?.data?.error?.message || err.message || "Unknown error";
+    res.status(500).json({ error: geminiError });
   }
 });
 
-// Diagnose based on selected symptom IDs
-app.post("/api/diagnose", async (req, res) => {
-  console.log("[POST] /api/diagnose - Incoming request, body:", req.body);
-  try {
-    const { symptoms } = req.body;
-    if (!Array.isArray(symptoms) || symptoms.length === 0) {
-      console.warn("[POST] /api/diagnose - Invalid symptoms array:", symptoms);
-      return res.status(400).json({ error: "Symptoms array required" });
-    }
-    const diagnosis = await getDiagnosis(symptoms);
-    console.log("[POST] /api/diagnose - Success, diagnosis count:", Array.isArray(diagnosis) ? diagnosis.length : 'N/A');
-    res.json(diagnosis);
-  } catch (err) {
-    console.error("[POST] /api/diagnose - Error:", err);
-    res.status(500).json({ error: err.message });
-  }
+// Serve React static files
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
+// Catch-all: send index.html for any route not handled by API
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Backend listening on port ${PORT}`);
 });
